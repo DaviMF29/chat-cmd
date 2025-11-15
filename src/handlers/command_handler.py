@@ -124,12 +124,15 @@ async def handle_users_command(websocket, user_name):
     except Exception as e:
         print(f"\n[ERROR] Failed to request user list: {e}")
 
-async def handle_clear_messages(user_name):
-    if user_name in user_messages:
-        del user_messages[user_name] 
+def handle_clear_messages(user_name):
+    if user_name in user_messages and user_messages[user_name]:
+        user_messages[user_name].clear()  # Clear messages for the specific user
         print(f"[{user_name}] Cleared their messages.")
     else:
         print(f"[{user_name}] No messages to clear.")
+
+def store_message(user_name, message):
+    user_messages[user_name].append(message)
 
 async def process_command(websocket, user_name, user_input):
     parts = user_input.split()
@@ -151,15 +154,17 @@ async def process_command(websocket, user_name, user_input):
         await handle_users_command(websocket, user_name)
 
     elif command_name == "clear":
-        await handle_clear_messages(user_name)
+        handle_clear_messages(user_name)
+        return False
+
+    store_message(user_name, user_input)
     
-    else:
-        unknown_command = json.dumps({
-            "type": "command",
-            "name": command_name,
-            "user": user_name,
-            "payload": user_input
-        })
-        await websocket.send(unknown_command)
+    unknown_command = json.dumps({
+        "type": "command",
+        "name": command_name,
+        "user": user_name,
+        "payload": user_input
+    })
+    await websocket.send(unknown_command)
     
     return False
