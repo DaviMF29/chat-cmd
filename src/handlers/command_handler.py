@@ -124,7 +124,7 @@ async def handle_users_command(websocket, user_name):
     except Exception as e:
         print(f"\n[ERROR] Failed to request user list: {e}")
 
-def handle_clear_messages(user_name):
+async def handle_clear_messages(user_name):
     if user_name in user_messages:
         del user_messages[user_name] 
         print(f"[{user_name}] Cleared their messages.")

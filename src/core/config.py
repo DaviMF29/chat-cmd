@@ -6,6 +6,7 @@ COMMANDS = {
     "image": "Sends and displays an image on all terminals. Usage: /image <path/to/file.png>",
     "sound": "Changes the notification sound. Usage: /sound <path/to/sound.wav> | /sound mute | /sound unmute",
     "users": "Lists all online users. Example: /users",
+    "clear": "Clears messages for the current user. Example: /clear",
 }
 
 NOTIFICATION_SOUND = None
