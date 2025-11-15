@@ -52,6 +52,8 @@ async def handle_image_command(websocket, user_name, parts):
     print(f"[{user_name}]: Reading and sending image {image_path}...")
 
     try:
+        import sys
+        
         with open(image_path, 'rb') as f:
             image_bytes = f.read()
             
@@ -67,8 +69,20 @@ async def handle_image_command(websocket, user_name, parts):
         await websocket.send(image_data_packet)
         print(f"[{user_name}]: Image packet sent to server.")
         
-        print(f"[{user_name}] Displaying image '{os.path.basename(image_path)}'...")
-        display_image_in_terminal(image_path)
+        # Display image locally using the same method as receiving
+        sys.__stdout__.write(f"[{user_name}] Displaying image '{os.path.basename(image_path)}'...\n")
+        sys.__stdout__.flush()
+        
+        # Temporarily redirect stdout to real stdout to bypass prompt_toolkit
+        old_stdout = sys.stdout
+        sys.stdout = sys.__stdout__
+        try:
+            display_image_in_terminal(image_path)
+        finally:
+            sys.stdout = old_stdout
+        
+        sys.__stdout__.write("\n")
+        sys.__stdout__.flush()
         
     except Exception as e:
         print(f"Error reading/encoding file: {e}")
