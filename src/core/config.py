@@ -1,4 +1,4 @@
-WEBSOCKET_URI = "wss://b27d072e6b9d.ngrok-free.app"
+WEBSOCKET_URI = "wss://d7a40b6a955f.ngrok-free.app"
 
 COMMANDS = {
     "quit": "Exits the interactive terminal. Example: /quit",
