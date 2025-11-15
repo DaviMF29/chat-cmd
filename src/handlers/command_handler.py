@@ -125,14 +125,16 @@ async def handle_users_command(websocket, user_name):
         print(f"\n[ERROR] Failed to request user list: {e}")
 
 def handle_clear_messages(user_name):
-    if user_name in user_messages and user_messages[user_name]:
-        user_messages[user_name].clear()  # Clear messages for the specific user
-        print(f"[{user_name}] Cleared their messages.")
-    else:
-        print(f"[{user_name}] No messages to clear.")
+    os.system('cls' if os.name == 'nt' else 'clear')
+    if user_name in user_messages:
+        user_messages[user_name].clear()
+    print(f"[{user_name}] Cleared the terminal.\n")
 
 def store_message(user_name, message):
     user_messages[user_name].append(message)
+
+def handle_watch_video(user_name):
+    pass
 
 async def process_command(websocket, user_name, user_input):
     parts = user_input.split()
@@ -156,6 +158,9 @@ async def process_command(websocket, user_name, user_input):
     elif command_name == "clear":
         handle_clear_messages(user_name)
         return False
+    
+    elif command_name == "watch":
+        await handle_watch_video(user_name)
 
     # Store the message for the user
     user_messages[user_name].append(user_input)
