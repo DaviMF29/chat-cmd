@@ -29,8 +29,12 @@ def render_image_from_data(data):
         with open(temp_path, 'wb') as f:
             f.write(image_bytes)
             
-        print(f"\n[{data['user']}] Displaying image '{file_name}'...")
+        # Force output to stdout directly to bypass prompt_toolkit buffering
+        sys.stdout.write(f"\n[{data['user']}] Displaying image '{file_name}'...\n")
+        sys.stdout.flush()
         display_image_in_terminal(temp_path)
+        sys.stdout.write("\n")
+        sys.stdout.flush()
         
         os.remove(temp_path)
         
