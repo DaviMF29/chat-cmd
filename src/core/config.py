@@ -7,6 +7,7 @@ COMMANDS = {
     "sound": "Changes the notification sound. Usage: /sound <path/to/sound.wav> | /sound mute | /sound unmute",
     "users": "Lists all online users. Example: /users",
     "clear": "Clears messages for the current user. Example: /clear",
+    "watch": "Opens a video URL in the default web browser. Usage: /watch <video_url>"
 }
 
 NOTIFICATION_SOUND = None

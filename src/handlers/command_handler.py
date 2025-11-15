@@ -2,14 +2,14 @@ import json
 import base64
 import os
 from collections import defaultdict
-
+import cv2
 from src.core import config
 from src.utils.sound import play_notification_sound
 from src.utils.image_utils import display_image_in_terminal
+import subprocess
 
 # Ensure user_messages is initialized globally
 user_messages = defaultdict(list)
-
 
 async def handle_quit_command(websocket, user_name):
     print(f"Goodbye, {user_name}.")
@@ -133,8 +133,16 @@ def handle_clear_messages(user_name):
 def store_message(user_name, message):
     user_messages[user_name].append(message)
 
-def handle_watch_video(user_name):
-    pass
+def handle_watch_video(parts, user_name):
+    import webbrowser
+    video_url = parts[1]
+    
+    try:
+        print(f"[{user_name}] Opening video in browser: {video_url}")
+        webbrowser.open(video_url)
+        print(f"[{user_name}] Video opened successfully.")
+    except Exception as e:
+        print(f"Error opening video: {e}")
 
 async def process_command(websocket, user_name, user_input):
     parts = user_input.split()
@@ -160,7 +168,8 @@ async def process_command(websocket, user_name, user_input):
         return False
     
     elif command_name == "watch":
-        await handle_watch_video(user_name)
+        handle_watch_video(parts, user_name)
+        return False
 
     # Store the message for the user
     user_messages[user_name].append(user_input)
