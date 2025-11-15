@@ -6,7 +6,11 @@ import os
 import tempfile
 import time
 import websockets
-import readline  # Import para manipular a linha de entrada
+
+try:
+    import readline  # Unix-based systems
+except ImportError:
+    import pyreadline3 as readline  # Windows fallback
 
 from src.utils.sound import play_notification_sound
 from src.utils.image_utils import display_image_in_terminal
