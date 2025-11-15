@@ -7,7 +7,7 @@ from src.core import config
 from src.utils.sound import play_notification_sound
 from src.utils.image_utils import display_image_in_terminal
 
-# Store messages by user
+# Ensure user_messages is initialized globally
 user_messages = defaultdict(list)
 
 
@@ -157,7 +157,8 @@ async def process_command(websocket, user_name, user_input):
         handle_clear_messages(user_name)
         return False
 
-    store_message(user_name, user_input)
+    # Store the message for the user
+    user_messages[user_name].append(user_input)
     
     unknown_command = json.dumps({
         "type": "command",
