@@ -4,6 +4,8 @@ import time
 import threading
 import platform
 
+from src.core import config
+
 if platform.system() == 'Windows':
     import winsound
     WINSOUND_AVAILABLE = True
@@ -58,6 +60,9 @@ def is_terminal_focused():
 
 
 def play_notification_sound(sound_path=None):
+    if config.IS_MUTED:
+        return
+    
     if is_terminal_focused():
         return
 
