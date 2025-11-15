@@ -1,10 +1,15 @@
-"""Sound notification utilities."""
 import os
+import sys
 import time
 import threading
-import winsound
+import platform
 
-# Try to import pygame for MP3 support, fallback to winsound only
+if platform.system() == 'Windows':
+    import winsound
+    WINSOUND_AVAILABLE = True
+else:
+    WINSOUND_AVAILABLE = False
+
 try:
     import pygame
     pygame.mixer.init()
@@ -13,32 +18,80 @@ except ImportError:
     PYGAME_AVAILABLE = False
 
 
+def is_terminal_focused():
+    try:
+        if platform.system() == 'Windows':
+            import ctypes
+            from ctypes import wintypes
+
+            hwnd = ctypes.windll.user32.GetForegroundWindow()
+
+            pid = wintypes.DWORD()
+            ctypes.windll.user32.GetWindowThreadProcessId(hwnd, ctypes.byref(pid))
+
+            current_pid = os.getpid()
+
+            return pid.value == current_pid
+
+        elif platform.system() == 'Linux':
+            import subprocess
+            try:
+                result = subprocess.run(
+                    ['xdotool', 'getactivewindow', 'getwindowpid'],
+                    capture_output=True,
+                    text=True,
+                    timeout=0.5
+                )
+                if result.returncode == 0:
+                    active_pid = int(result.stdout.strip())
+                    current_pid = os.getpid()
+                    return active_pid == current_pid
+            except (subprocess.TimeoutExpired, FileNotFoundError, ValueError):
+                pass
+
+            return True
+        else:
+            return True
+
+    except Exception:
+        return True
+
+
 def play_notification_sound(sound_path=None):
-    """Play notification sound in a separate thread to avoid blocking.
-    
-    Args:
-        sound_path: Path to the sound file. If None, plays system default beep.
-    """
+    if is_terminal_focused():
+        return
+
     def play():
         try:
             if sound_path and os.path.exists(sound_path):
-                # Check if it's an MP3 file and pygame is available
-                if sound_path.lower().endswith('.mp3') and PYGAME_AVAILABLE:
-                    pygame.mixer.music.load(sound_path)
-                    pygame.mixer.music.play()
-                    # Wait for the sound to finish playing
-                    while pygame.mixer.music.get_busy():
-                        time.sleep(0.1)
-                elif sound_path.lower().endswith('.wav'):
+                if PYGAME_AVAILABLE:
+                    if sound_path.lower().endswith(('.mp3', '.wav', '.ogg')):
+                        pygame.mixer.music.load(sound_path)
+                        pygame.mixer.music.play()
+                        while pygame.mixer.music.get_busy():
+                            time.sleep(0.1)
+                    else:
+                        print(f"\n[WARNING] Unsupported audio format. Please use .wav, .mp3, or .ogg files.")
+                        _play_system_beep()
+                elif WINSOUND_AVAILABLE and sound_path.lower().endswith('.wav'):
                     winsound.PlaySound(sound_path, winsound.SND_FILENAME | winsound.SND_ASYNC)
                 else:
-                    print(f"\n[WARNING] Unsupported audio format. Please use .wav or .mp3 files.")
-                    winsound.MessageBeep(winsound.MB_OK)
+                    _play_system_beep()
             else:
-                # Default system beep if no sound file is set
-                winsound.MessageBeep(winsound.MB_OK)
-                
+                _play_system_beep()
+
         except Exception as e:
-            pass  # Silently fail if sound cannot be played
-    
+            pass
+
     threading.Thread(target=play, daemon=True).start()
+
+
+def _play_system_beep():
+    try:
+        if WINSOUND_AVAILABLE:
+            winsound.MessageBeep(winsound.MB_OK)
+        else:
+            sys.stdout.write('\a')
+            sys.stdout.flush()
+    except Exception:
+        pass
