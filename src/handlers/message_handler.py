@@ -50,9 +50,7 @@ async def receive_messages(websocket, user_name):
             try:
                 data = json.loads(message_str) 
             except json.JSONDecodeError:
-                print(f"\n[SERVER NOTIFICATION] {message_str}")
-                sys.stdout.write("> ")
-                sys.stdout.flush()
+                print(f"[SERVER NOTIFICATION] {message_str}")
                 continue
             
             if data.get("type") == "image_data":
@@ -65,15 +63,11 @@ async def receive_messages(websocket, user_name):
                 # Skip displaying if the sender is the current user (already displayed locally)
                 if data.get('user') != user_name:
                     play_notification_sound(config.NOTIFICATION_SOUND)
-                    print(f"\n{data.get('user', 'unknown')}: {data.get('text', '')}")
-                    sys.stdout.write("> ")
-                    sys.stdout.flush()
+                    print(f"{data.get('user', 'unknown')}: {data.get('text', '')}")
             
             elif data.get("type") == "notification":
                 action = data.get("action", "performed an action")
-                print(f"\n[NOTIFICATION] {data.get('user', 'unknown')} {action}.")
-                sys.stdout.write("> ")
-                sys.stdout.flush()
+                print(f"[NOTIFICATION] {data.get('user', 'unknown')} {action}.")
             
             elif data.get("type") == "command":
                 name = data.get("name", "unknown")
@@ -93,14 +87,9 @@ async def receive_messages(websocket, user_name):
                     indicator = " (you)" if user == user_name else ""
                     print(f"  • {user}{indicator}")
                 print("---------------------------")
-                sys.stdout.write("> ")
-                sys.stdout.flush()
             
             else:
-                print(f"\n[SERVER] Received unhandled data structure: {data}")
-            
-            sys.stdout.write("> ")
-            sys.stdout.flush()
+                print(f"[SERVER] Received unhandled data structure: {data}")
             
     except websockets.exceptions.ConnectionClosed:
         print("\n[SERVER] Connection closed. Press Enter to exit.")
