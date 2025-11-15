@@ -71,7 +71,9 @@ async def receive_messages(websocket, user_name):
                 if data.get('user') != user_name:
                     play_notification_sound(config.NOTIFICATION_SOUND)
                     current_input = readline.get_line_buffer()
-                    print(f"\r{data.get('user', 'unknown')}: {data.get('text', '')}")
+                    # Clear current line, print message, then restore prompt with user input
+                    sys.stdout.write('\r' + ' ' * (len(current_input) + 2) + '\r')
+                    print(f"{data.get('user', 'unknown')}: {data.get('text', '')}")
                     sys.stdout.write(f"> {current_input}")
                     sys.stdout.flush()
             
