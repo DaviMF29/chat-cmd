@@ -7,11 +7,6 @@ import tempfile
 import time
 import websockets
 
-try:
-    import readline  # Unix-based systems
-except ImportError:
-    import pyreadline3 as readline  # Windows fallback
-
 from src.utils.sound import play_notification_sound
 from src.utils.image_utils import display_image_in_terminal
 from src.core import config
@@ -70,18 +65,14 @@ async def receive_messages(websocket, user_name):
                 # Skip displaying if the sender is the current user (already displayed locally)
                 if data.get('user') != user_name:
                     play_notification_sound(config.NOTIFICATION_SOUND)
-                    current_input = readline.get_line_buffer()
-                    # Clear current line, print message, then restore prompt with user input
-                    sys.stdout.write('\r' + ' ' * (len(current_input) + 2) + '\r')
-                    print(f"{data.get('user', 'unknown')}: {data.get('text', '')}")
-                    sys.stdout.write(f"> {current_input}")
+                    print(f"\n{data.get('user', 'unknown')}: {data.get('text', '')}")
+                    sys.stdout.write("> ")
                     sys.stdout.flush()
             
             elif data.get("type") == "notification":
                 action = data.get("action", "performed an action")
-                current_input = readline.get_line_buffer()
                 print(f"\n[NOTIFICATION] {data.get('user', 'unknown')} {action}.")
-                sys.stdout.write(f"> {current_input}")
+                sys.stdout.write("> ")
                 sys.stdout.flush()
             
             elif data.get("type") == "command":
@@ -97,13 +88,12 @@ async def receive_messages(websocket, user_name):
                 # Display online users
                 users = data.get("users", [])
                 count = data.get("count", 0)
-                current_input = readline.get_line_buffer()
                 print(f"\n--- ONLINE USERS ({count}) ---")
                 for user in users:
                     indicator = " (you)" if user == user_name else ""
                     print(f"  • {user}{indicator}")
                 print("---------------------------")
-                sys.stdout.write(f"> {current_input}")
+                sys.stdout.write("> ")
                 sys.stdout.flush()
             
             else:
