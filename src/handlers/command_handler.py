@@ -53,8 +53,9 @@ def handle_sound_command(parts):
             print("Notification sound is not muted.")
         return
 
-    if not os.path.exists(sound_arg):
-        print(f"Error: Sound file not found at {sound_arg}")
+    path = "sounds/"+sound_arg
+    if not os.path.exists(path):
+        print(f"Error: Sound file not found at {path}")
         return
     
     config.NOTIFICATION_SOUND = sound_arg
@@ -68,7 +69,7 @@ async def handle_image_command(websocket, user_name, parts):
         print("Usage: /image <path/to/image>")
         return
         
-    image_path = parts[1]
+    image_path = "images/"+parts[1]
     
     if not os.path.exists(image_path):
         print(f"Error: File not found at {image_path}")
@@ -144,6 +145,24 @@ def handle_watch_video(parts, user_name):
     except Exception as e:
         print(f"Error opening video: {e}")
 
+async def handle_whisper_command(websocket, user_name, parts):
+    if len(parts) < 3:
+        print("Usage: /whisper <username> <message>")
+        return
+    
+    target_user = parts[1]
+    message = ' '.join(parts[2:])
+    
+    whisper_data = json.dumps({
+        "type": "whisper",
+        "from": user_name,
+        "to": target_user,
+        "message": message
+    })
+    
+    await websocket.send(whisper_data)
+    print(f"[Whisper to {target_user}] {message}")
+
 async def process_command(websocket, user_name, user_input):
     parts = user_input.split()
     command_name = parts[0].lstrip('/')
@@ -169,6 +188,10 @@ async def process_command(websocket, user_name, user_input):
     
     elif command_name == "watch":
         handle_watch_video(parts, user_name)
+        return False
+    
+    elif command_name == "whisper":
+        await handle_whisper_command(websocket, user_name, parts)
         return False
 
     # Store the message for the user

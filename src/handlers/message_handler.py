@@ -100,8 +100,21 @@ async def receive_messages(websocket, user_name):
                     print(f"  • {user}{indicator}")
                 print("---------------------------")
             
-            else:
-                print(f"[SERVER] Received unhandled data structure: {data}")
+            elif data.get("type") == "whisper_received":
+                # Received a whisper from another user
+                from_user = data.get("from", "unknown")
+                message = data.get("message", "")
+                play_notification_sound(config.NOTIFICATION_SOUND)
+                print(f"\n[Whisper from {from_user}] {message}")
+            
+            elif data.get("type") == "whisper_sent":
+                # Confirmation that whisper was sent (already displayed locally)
+                pass
+            
+            elif data.get("type") == "whisper_error":
+                # Error sending whisper
+                error_message = data.get("message", "Unknown error")
+                print(f"\n[ERROR] {error_message}")
             
     except websockets.exceptions.ConnectionClosed:
         print("\n[SERVER] Connection closed. Press Enter to exit.")

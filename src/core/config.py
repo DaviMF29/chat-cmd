@@ -1,4 +1,4 @@
-WEBSOCKET_URI = "wss://d7a40b6a955f.ngrok-free.app"
+WEBSOCKET_URI = "wss://f39b0fcf068a.ngrok-free.app"
 
 COMMANDS = {
     "quit": "Exits the interactive terminal. Example: /quit",
@@ -7,7 +7,8 @@ COMMANDS = {
     "sound": "Changes the notification sound. Usage: /sound <path/to/sound.wav> | /sound mute | /sound unmute",
     "users": "Lists all online users. Example: /users",
     "clear": "Clears messages for the current user. Example: /clear",
-    "watch": "Opens a video URL in the default web browser. Usage: /watch <video_url>"
+    "watch": "Opens a video URL in the default web browser. Usage: /watch <video_url>",
+    "whisper": "Sends a private message to a specific user. Usage: /whisper <username> <message>"
 }
 
 NOTIFICATION_SOUND = None

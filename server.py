@@ -2,18 +2,16 @@ import asyncio
 import websockets
 import json
 
-# Store websockets with their usernames
-USERS = {}  # {websocket: username}
+USERS = {}
 
 async def handler(websocket):
     user_name = None
-    USERS[websocket] = None  # Initially no username
+    USERS[websocket] = None
 
     try:
         async for message in websocket:
             print(f"Received: {message}")
             
-            # Try to parse message to extract username
             try:
                 data = json.loads(message)
                 
@@ -32,6 +30,46 @@ async def handler(websocket):
                         "count": len(online_users)
                     })
                     await websocket.send(response)
+                    continue
+                
+                # Handle whisper command
+                if data.get('type') == 'whisper':
+                    from_user = data.get('from')
+                    to_user = data.get('to')
+                    message = data.get('message')
+                    
+                    
+                    # Find target user's websocket
+                    target_ws = None
+                    for ws, username in USERS.items():
+                        if username == to_user:
+                            target_ws = ws
+                            break
+                    
+                    if target_ws:
+                        # Send to target user
+                        whisper_msg = json.dumps({
+                            "type": "whisper_received",
+                            "from": from_user,
+                            "message": message
+                        })
+                        await target_ws.send(whisper_msg)
+                        
+                        # Send confirmation to sender
+                        confirmation = json.dumps({
+                            "type": "whisper_sent",
+                            "to": to_user,
+                            "message": message
+                        })
+                        await websocket.send(confirmation)
+                    else:
+                        # User not found
+                        print(f"[WHISPER] User '{to_user}' not found")
+                        error_msg = json.dumps({
+                            "type": "whisper_error",
+                            "message": f"User '{to_user}' not found or offline."
+                        })
+                        await websocket.send(error_msg)
                     continue
                     
             except json.JSONDecodeError:
