@@ -2,11 +2,9 @@ import json
 import base64
 import os
 from collections import defaultdict
-import cv2
 from src.core import config
 from src.utils.sound import play_notification_sound
 from src.utils.image_utils import display_image_in_terminal
-import subprocess
 
 # Ensure user_messages is initialized globally
 user_messages = defaultdict(list)

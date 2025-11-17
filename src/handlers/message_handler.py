@@ -91,13 +91,15 @@ async def receive_messages(websocket, user_name):
                     print(f"\n[SERVER] Command '{name}' received from {user}.")
             
             elif data.get("type") == "user_list":
-                # Display online users
+                # Display online users with life information
                 users = data.get("users", [])
                 count = data.get("count", 0)
                 print(f"\n--- ONLINE USERS ({count}) ---")
                 for user in users:
-                    indicator = " (you)" if user == user_name else ""
-                    print(f"  • {user}{indicator}")
+                    name = user.get("name", "unknown")
+                    life = user.get("life", "?")
+                    indicator = " (you)" if name == user_name else ""
+                    print(f"  • {name}{indicator} - Life: {life}")
                 print("---------------------------")
             
             elif data.get("type") == "whisper_received":

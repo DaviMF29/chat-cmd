@@ -3,9 +3,8 @@ import websockets
 import json
 from prompt_toolkit import PromptSession
 from prompt_toolkit.patch_stdout import patch_stdout
-import os
 from dotenv import set_key
-from src.core import config
+
 from src.handlers.message_handler import receive_messages
 from src.handlers.command_handler import process_command
 

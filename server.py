@@ -1,6 +1,7 @@
 import asyncio
 import websockets
 import json
+from src.core import config
 
 USERS = {}
 
@@ -18,7 +19,8 @@ async def handler(websocket):
                 # Store username on first message
                 if USERS[websocket] is None and data.get('user'):
                     user_name = data.get('user')
-                    USERS[websocket] = user_name
+                    user_life = 100
+                    USERS[websocket] = {'name': user_name, 'life': user_life}
                     print(f"User '{user_name}' registered. Total users: {len([u for u in USERS.values() if u])}")
                 
                 # Handle users command
@@ -41,8 +43,8 @@ async def handler(websocket):
                     
                     # Find target user's websocket
                     target_ws = None
-                    for ws, username in USERS.items():
-                        if username == to_user:
+                    for ws, user in USERS.items():
+                        if user["name"] == to_user:
                             target_ws = ws
                             break
                     await websocket.send({"type": "debug", "message": f"Target WS: {target_ws}, To User: {to_user}, From User: {from_user}"})
@@ -80,8 +82,8 @@ async def handler(websocket):
                     
                     # Find target user's websocket
                     target_ws = None
-                    for ws, username in USERS.items():
-                        if username == to_user:
+                    for ws, user in USERS.items():
+                        if user["name"] == to_user:
                             target_ws = ws
                             break
                     
@@ -100,7 +102,19 @@ async def handler(websocket):
                             "to": to_user,
                             "atack": atack
                         })
+
                         await websocket.send(confirmation)
+
+                        if USERS[target_ws]['life'] > 0:
+                            USERS[target_ws]['life'] -= config.ATACKS.get(atack, 0)
+                            if USERS[target_ws]['life'] < 0:
+                                USERS[target_ws]['life'] = 0
+
+                        life_update = json.dumps({
+                            "type": "life_update",
+                            "life": USERS[target_ws]['life']
+                        })
+                        await target_ws.send(life_update)
 
                         # Notify other users
                         for ws, username in USERS.items():
