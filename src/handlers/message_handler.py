@@ -101,15 +101,16 @@ async def receive_messages(websocket, user_name):
                 print("---------------------------")
             
             elif data.get("type") == "whisper_received":
-                # Received a whisper from another user
                 from_user = data.get("from", "unknown")
                 message = data.get("message", "")
                 play_notification_sound(config.NOTIFICATION_SOUND)
                 print(f"\n[Whisper from {from_user}] {message}")
             
-            elif data.get("type") == "whisper_sent":
-                # Confirmation that whisper was sent (already displayed locally)
-                pass
+            elif data.get("type") == "atack_received":
+                from_user = data.get("from")
+                atack = data.get("atack")
+                play_notification_sound(config.NOTIFICATION_SOUND)
+                print(f"\n{from_user} hits you with {atack}.")
             
             elif data.get("type") == "whisper_error":
                 # Error sending whisper

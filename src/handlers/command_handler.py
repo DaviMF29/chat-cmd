@@ -163,6 +163,26 @@ async def handle_whisper_command(websocket, user_name, parts):
     await websocket.send(whisper_data)
     print(f"[Whisper to {target_user}] {message}")
 
+async def handle_atack_command(websocket, user_name, parts):
+    if len(parts) < 3:
+        print("Usage: /atack <username> <atack")
+        return
+    
+    target_user = parts[1]
+    atack = parts[2]
+    if atack not in config.ATACKS:
+        print(f"Error: Unknown atack '{atack}'. Available atacks: {', '.join(config.ATACKS.keys())}")
+        return
+    
+    atack_data = json.dumps({
+        "type": "atack",
+        "from": user_name,
+        "to": target_user,
+        "atack": atack
+    })
+    
+    await websocket.send(atack_data)
+    print(f"You hit {target_user} with {atack}.")
 async def process_command(websocket, user_name, user_input):
     parts = user_input.split()
     command_name = parts[0].lstrip('/')
@@ -181,6 +201,7 @@ async def process_command(websocket, user_name, user_input):
     
     elif command_name == "users":
         await handle_users_command(websocket, user_name)
+        return False
 
     elif command_name == "clear":
         handle_clear_messages(user_name)
@@ -192,6 +213,10 @@ async def process_command(websocket, user_name, user_input):
     
     elif command_name == "whisper":
         await handle_whisper_command(websocket, user_name, parts)
+        return False
+    
+    elif command_name == "atack":
+        await handle_atack_command(websocket, user_name, parts)
         return False
 
     # Store the message for the user

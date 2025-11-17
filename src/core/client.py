@@ -3,7 +3,8 @@ import websockets
 import json
 from prompt_toolkit import PromptSession
 from prompt_toolkit.patch_stdout import patch_stdout
-
+import os
+from dotenv import set_key
 from src.core import config
 from src.handlers.message_handler import receive_messages
 from src.handlers.command_handler import process_command
@@ -40,8 +41,12 @@ async def connect_to_server():
     """Connect to the WebSocket server with prompt_toolkit for better terminal handling."""
     try:
         session = PromptSession()
-        
-        async with websockets.connect(config.WEBSOCKET_URI) as websocket:
+
+        WEBSOCKET_URI = await session.prompt_async("Enter WebSocket URI to connect in server: ")
+        set_key(".env", "WEBSOCKET_URI", WEBSOCKET_URI)
+
+        print(f"Connecting to server at {WEBSOCKET_URI}...")
+        async with websockets.connect(WEBSOCKET_URI) as websocket:
             user_name = await session.prompt_async("Enter your name: ")
             print(f"\nWelcome, {user_name}! Type a message or use commands. Type /help for assistance.\n")
 
@@ -61,6 +66,6 @@ async def connect_to_server():
                     receive_task.cancel()
             
     except ConnectionRefusedError:
-        print(f"\n[ERROR] Connection refused. Make sure the server is running at {config.WEBSOCKET_URI}.")
+        print(f"\n[ERROR] Connection refused. Make sure the server is running at {WEBSOCKET_URI}.")
     except Exception as e:
         print(f"\n[ERROR] Failed to connect or manage tasks: {e}")

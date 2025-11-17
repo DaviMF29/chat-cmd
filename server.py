@@ -33,7 +33,7 @@ async def handler(websocket):
                     continue
                 
                 # Handle whisper command
-                if data.get('type') == 'whisper':
+                elif data.get('type') == 'whisper':
                     from_user = data.get('from')
                     to_user = data.get('to')
                     message = data.get('message')
@@ -45,7 +45,7 @@ async def handler(websocket):
                         if username == to_user:
                             target_ws = ws
                             break
-                    
+                    await websocket.send({"type": "debug", "message": f"Target WS: {target_ws}, To User: {to_user}, From User: {from_user}"})
                     if target_ws:
                         # Send to target user
                         whisper_msg = json.dumps({
@@ -61,6 +61,7 @@ async def handler(websocket):
                             "to": to_user,
                             "message": message
                         })
+                        
                         await websocket.send(confirmation)
                     else:
                         # User not found
@@ -71,7 +72,54 @@ async def handler(websocket):
                         })
                         await websocket.send(error_msg)
                     continue
+                
+                elif data.get('type') == 'atack':
+                    from_user = data.get('from')
+                    to_user = data.get('to')
+                    atack = data.get('atack')
                     
+                    # Find target user's websocket
+                    target_ws = None
+                    for ws, username in USERS.items():
+                        if username == to_user:
+                            target_ws = ws
+                            break
+                    
+                    if target_ws:
+                        # Send atack to target user
+                        atack_msg = json.dumps({
+                            "type": "atack_received",
+                            "from": from_user,
+                            "atack": atack
+                        })
+                        await target_ws.send(atack_msg)
+
+                        # Send confirmation to sender
+                        confirmation = json.dumps({
+                            "type": "atack_sent",
+                            "to": to_user,
+                            "atack": atack
+                        })
+                        await websocket.send(confirmation)
+
+                        # Notify other users
+                        for ws, username in USERS.items():
+                            if ws != websocket and ws != target_ws:
+                                spectator_msg = json.dumps({
+                                    "type": "atack_notification",
+                                    "message": f"{from_user} attacked {to_user} with {atack}."
+                                })
+                                await ws.send(spectator_msg)
+                    else:
+                        # User not found
+                        print(f"[ATACK] User '{to_user}' not found")
+                        error_msg = json.dumps({
+                            "type": "atack_error",
+                            "message": f"User '{to_user}' not found or offline."
+                        })
+                        await websocket.send(error_msg)
+                    continue
+
             except json.JSONDecodeError:
                 pass  # Not JSON, treat as regular message
             
