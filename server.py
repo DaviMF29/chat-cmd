@@ -110,6 +110,23 @@ async def handler(websocket):
                             if USERS[target_ws]['life'] < 0:
                                 USERS[target_ws]['life'] = 0
 
+                            # Broadcast death notification to all users except the defeated user
+                            if USERS[target_ws]['life'] == 0:
+                                death_broadcast = json.dumps({
+                                    "type": "notification",
+                                    "action": "has been defeated",
+                                    "user": to_user
+                                })
+                                for ws in USERS.keys():
+                                    if ws != target_ws:
+                                        await ws.send(death_broadcast)
+
+                                death_message = json.dumps({
+                                    "type": "notification",
+                                    "action": f"You have been defeated by {from_user}. Better luck next time!"
+                                })
+                                await target_ws.send(death_message)
+
                         life_update = json.dumps({
                             "type": "life_update",
                             "life": USERS[target_ws]['life']

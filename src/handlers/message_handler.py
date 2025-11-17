@@ -1,4 +1,3 @@
-"""Message handling for WebSocket communication."""
 import sys
 import json
 import base64
@@ -13,11 +12,6 @@ from src.core import config
 
 
 def render_image_from_data(data):
-    """Render an image received from websocket data.
-    
-    Args:
-        data: Dictionary containing image data with 'content', 'filename', and 'user'.
-    """
     try:
         image_bytes = base64.b64decode(data['content'])
         file_name = data['filename']
@@ -79,7 +73,7 @@ async def receive_messages(websocket, user_name):
             
             elif data.get("type") == "notification":
                 action = data.get("action", "performed an action")
-                print(f"[NOTIFICATION] {data.get('user', 'unknown')} {action}.")
+                print(f"[NOTIFICATION] {data.get('user', '')} {action}.")
             
             elif data.get("type") == "command":
                 name = data.get("name", "unknown")
