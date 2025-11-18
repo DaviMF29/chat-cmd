@@ -10,7 +10,6 @@ from src.handlers.command_handler import process_command
 
 
 async def send_messages(websocket, user_name, session):
-    """Handle sending messages using prompt_toolkit for non-blocking input."""
     while True:
         try:
             user_input = await session.prompt_async("> ")
@@ -37,7 +36,6 @@ async def send_messages(websocket, user_name, session):
 
 
 async def connect_to_server():
-    """Connect to the WebSocket server with prompt_toolkit for better terminal handling."""
     try:
         session = PromptSession()
 

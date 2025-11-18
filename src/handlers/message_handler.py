@@ -45,12 +45,7 @@ def render_image_from_data(data):
 
 
 async def receive_messages(websocket, user_name):
-    """Receive and handle messages from the WebSocket server.
-    
-    Args:
-        websocket: WebSocket connection object.
-        user_name: Current user's name.
-    """
+    "websocket: WebSocket connection object."
     try:
         async for message_str in websocket:
             try:

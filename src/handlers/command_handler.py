@@ -6,7 +6,6 @@ from src.core import config
 from src.utils.sound import play_notification_sound
 from src.utils.image_utils import display_image_in_terminal
 
-# Ensure user_messages is initialized globally
 user_messages = defaultdict(list)
 
 async def handle_quit_command(websocket, user_name):
@@ -217,7 +216,6 @@ async def process_command(websocket, user_name, user_input):
         await handle_atack_command(websocket, user_name, parts)
         return False
 
-    # Store the message for the user
     user_messages[user_name].append(user_input)
     
     unknown_command = json.dumps({
